@@ -77,6 +77,11 @@ class GeneticAlgorithmVRP:
         route = []
         for point in self.points:
             if random.random() < 0.5:
-                vehicle.add_stop(point, point.remaining_demand)
-                route.append({"point": point, "delivery": point.remaining_demand})
+                delivery = {
+                    "orange": random.randint(0, point.remaining_demand["orange"]),
+                    "uranium": random.randint(0, point.remaining_demand["uranium"]),
+                    "tuna": random.randint(0, point.remaining_demand["tuna"]),
+                }
+                vehicle.add_stop(point, delivery_amounts=delivery)
+                route.append({"point": point, "delivery": delivery})
         return route

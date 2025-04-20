@@ -13,17 +13,17 @@ class Point:
     - label (str): label of the point
     """
 
-    def __init__(self, x: int, y: int, demand: int = 0, label: str = None) -> None:
+    def __init__(self, x: int, y: int, demand: dict = None, label: str = None) -> None:
         self.x = x
         self.y = y
-        self.total_demand = demand
-        self.remaining_demand = demand
         self.label = label
+        self.total_demand = demand if demand else {"orange": 0, "uranium": 0, "tuna": 0}
+        self.remaining_demand = self.total_demand.copy()
 
-    def deliver(self, amount: int) -> int:
+    def deliver(self, product: str,amount: int) -> int:
         """Delivers a certain amount of goods to the point."""
-        self.remaining_demand = max(0, self.remaining_demand - amount)
-        return self.remaining_demand
+        self.remaining_demand[product] = max(0, self.remaining_demand[product] - amount)
+        return self.remaining_demand[product]
 
     def distance_to(self, other: "Point") -> float:
         """Calculates the Euclidean distance to another point."""
@@ -46,36 +46,59 @@ class Vehicle:
 
         self.id = vehicle_id
         self.type = vehicle_type
-        self.capacity = self.VEHICLE_TYPES[vehicle_type]
-        self.current_load = self.capacity
         self.route = []
         self.assigned_warehouse = None
+        self.current_load = {"orange": 0, "uranium": 0, "tuna": 0}
+        self.capacity = {product: cap for product, cap in zip(self.current_load, [1000, 1500, 2000])}
 
     def reset(self) -> None:
         """Resets load and route of the vehicle."""
         self.current_load = self.capacity
         self.route = []
 
-    def reload(self) -> int:
+    def reload(self) -> dict:
         """Reloads the vehicle to full capacity."""
-        self.current_load = self.capacity
+        self.current_load = self.capacity.copy()
         return self.current_load
 
-    def add_stop(self, point: Point, delivery_amount: int = 0, is_warehouse: bool = False) -> None:
-        """Adds a stop to the vehicle's route."""
+    def add_stop(self, point: Point, delivery_amounts: dict = None, is_warehouse: bool = False) -> None:
+        delivery_amounts = delivery_amounts or {k: 0 for k in self.current_load}
+
+        if not is_warehouse:
+            # Upewniamy się, że point ma strukturę demandu dla wszystkich towarów
+            if not hasattr(point, "remaining_demand") or not isinstance(point.remaining_demand, dict):
+                print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} has no proper demand structure.")
+                return
+            for product in self.current_load:
+                if product not in point.remaining_demand:
+                    print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} missing demand for '{product}'")
+                    return
+
+            # Sprawdzenie: nie wolno łączyć pomarańczy i uranu
+            products = [product for product, amount in delivery_amounts.items() if amount > 0]
+            if "orange" in products and "uranium" in products:
+                print(
+                    f"[INFO] Vehicle {self.id} skipped illegal combo (orange + uranium) at {getattr(point, 'label', 'UNKNOWN')}")
+                return
+
         stop_info = {
             "point": point,
-            "delivery": delivery_amount,
-            "remaining_load": self.current_load,
-            "remaining_demand": point.remaining_demand if not is_warehouse else None,
+            "delivery": delivery_amounts.copy(),
+            "remaining_load": self.current_load.copy(),
+            "remaining_demand": point.remaining_demand.copy() if not is_warehouse else None,
             "is_warehouse": is_warehouse,
         }
         self.route.append(stop_info)
 
         if not is_warehouse:
-            delivery_amount = min(delivery_amount, point.remaining_demand, self.current_load)
-            self.current_load -= delivery_amount
-            point.deliver(delivery_amount)
+            for product, amount in delivery_amounts.items():
+                try:
+                    deliverable = min(amount, point.remaining_demand[product], self.current_load[product])
+                    self.current_load[product] -= deliverable
+                    point.deliver(product, deliverable)
+                except KeyError:
+                    print(
+                        f"[ERROR] Product '{product}' missing in either point or vehicle at {getattr(point, 'label', 'UNKNOWN')}")
 
     @staticmethod
     def create_random_vehicle(vehicle_id: int) -> "Vehicle":

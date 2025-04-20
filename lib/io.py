@@ -18,11 +18,20 @@ def save_routes(vehicles: list, filename: str = "output/routes.txt") -> None:
                         f"Warehouse | Load: {vehicle.capacity}/{vehicle.capacity}\n"
                     )
                 else:
-                    f.write(
-                        f"[Delivery] {point.label} | Delivered: {stop['delivery']}kg | "
-                        f"Remaining demand: {stop['remaining_demand'] - stop['delivery']}kg | "
-                        f"Vehicle load: {stop['remaining_load'] - stop['delivery']}kg\n"
-                    )
+                    f.write(f"[Delivery] {point.label} | ")
+                    # Printing out delivered goods
+                    for product, amount in stop["delivery"].items():
+                        f.write(f"{product}: {amount}kg, ")
+
+                    f.write("| Remaining demand: ")
+                    for product, rem in stop["remaining_demand"].items():
+                        f.write(f"{product}: {rem}kg, ")
+
+                    f.write("| Remaining load: ")
+                    for product, load in stop["remaining_load"].items():
+                        f.write(f"{product}: {load}kg, ")
+
+                    f.write("\n")
 
             f.write(f"\nTotal distance: {vehicle_distance:.2f} km\n")
             total_sum += vehicle_distance
