@@ -17,10 +17,22 @@ class Point:
         self.x = x
         self.y = y
         self.label = label
-        self.total_demand = demand if demand else {"orange": 0, "uranium": 0, "tuna": 0}
+        if demand:
+            self.total_demand = demand
+        else:
+            self.total_demand = self.generate_random_demand()
         self.remaining_demand = self.total_demand.copy()
 
-    def deliver(self, product: str,amount: int) -> int:
+    @staticmethod
+    def generate_random_demand() -> dict:
+        """Generates a random demand between 100 kg and 200 kg distributed across goods."""
+        total = random.randint(100, 200)
+        orange = random.randint(0, total)
+        tuna = random.randint(0, total - orange)
+        uranium = total - orange - tuna
+        return {"orange": orange, "tuna": tuna, "uranium": uranium}
+
+    def deliver(self, product: str, amount: int) -> int:
         """Delivers a certain amount of goods to the point."""
         self.remaining_demand[product] = max(0, self.remaining_demand[product] - amount)
         return self.remaining_demand[product]
@@ -50,6 +62,8 @@ class Vehicle:
         self.assigned_warehouse = None
         self.current_load = {"orange": 0, "uranium": 0, "tuna": 0}
         self.capacity = {product: cap for product, cap in zip(self.current_load, [1000, 1500, 2000])}
+        self.driven_by_cat = False
+        self.tuna_eaten_by_cat = 0
 
     def reset(self) -> None:
         """Resets load and route of the vehicle."""
@@ -65,7 +79,6 @@ class Vehicle:
         delivery_amounts = delivery_amounts or {k: 0 for k in self.current_load}
 
         if not is_warehouse:
-            # Upewniamy się, że point ma strukturę demandu dla wszystkich towarów
             if not hasattr(point, "remaining_demand") or not isinstance(point.remaining_demand, dict):
                 print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} has no proper demand structure.")
                 return
@@ -74,7 +87,6 @@ class Vehicle:
                     print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} missing demand for '{product}'")
                     return
 
-            # Sprawdzenie: nie wolno łączyć pomarańczy i uranu
             products = [product for product, amount in delivery_amounts.items() if amount > 0]
             if "orange" in products and "uranium" in products:
                 print(
@@ -89,6 +101,14 @@ class Vehicle:
             "is_warehouse": is_warehouse,
         }
         self.route.append(stop_info)
+
+        # If cat is driving and this isn't the first stop, have the cat eat tuna
+        if self.driven_by_cat and len(self.route) > 1:
+            prev_point = self.route[-2]["point"]
+            distance = prev_point.distance_to(point)
+            tuna_to_eat = min(self.current_load["tuna"], distance)
+            self.current_load["tuna"] -= tuna_to_eat
+            self.tuna_eaten_by_cat += tuna_to_eat
 
         if not is_warehouse:
             for product, amount in delivery_amounts.items():
@@ -148,6 +168,38 @@ class Warehouse:
         vehicle.current_load = 0
 
 
+class GingerCat:
+    """
+    A fat, ginger cat that works at the company.
+    Every day, the cat randomly chooses one vehicle to drive and eats tuna at a rate of 1kg/km.
+    """
+    def __init__(self, name="Garfield"):
+        self.name = name
+        self.selected_vehicle = None
+        self.total_tuna_eaten = 0
+
+    def select_random_vehicle(self, vehicles):
+        """Randomly selects a vehicle to drive for the day."""
+        # Reset previous vehicle if any
+        if self.selected_vehicle:
+            self.selected_vehicle.driven_by_cat = False
+            self.total_tuna_eaten += self.selected_vehicle.tuna_eaten_by_cat
+
+        self.selected_vehicle = random.choice(vehicles)
+        self.selected_vehicle.driven_by_cat = True
+        self.selected_vehicle.tuna_eaten_by_cat = 0
+        return self.selected_vehicle
+
+    def get_total_tuna_eaten(self):
+        """Returns the total amount of tuna eaten by the cat."""
+        current = 0
+        if self.selected_vehicle:
+            current = self.selected_vehicle.tuna_eaten_by_cat
+        return self.total_tuna_eaten + current
+
+    def __str__(self):
+        return f"{self.name}, the company's fat ginger cat"
+
 
 def generate_warehouses_and_vehicles(num_warehouses: int, num_vehicles_per_warehouse: int) -> list:
     warehouses = []
@@ -174,3 +226,8 @@ if __name__ == "__main__":
         print(f"Warehouse {warehouse.id} located at ({warehouse.location.x}, {warehouse.location.y})")
         for vehicle in warehouse.vehicles:
             print(f"  Vehicle {vehicle.id} (Type: {vehicle.type}) is assigned to this warehouse.")
+
+    cat = GingerCat()
+    print(cat)
+    selected_vehicle = cat.select_random_vehicle([vehicle for warehouse in warehouses for vehicle in warehouse.vehicles])
+    print(f"{cat.name} is driving vehicle {selected_vehicle.id} today.")

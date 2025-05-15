@@ -74,14 +74,18 @@ class GeneticAlgorithmVRP:
 
     def create_vehicle_route(self, vehicle):
         """Creates a route for a given vehicle."""
-        route = []
-        for point in self.points:
+        warehouse = self.points[0]  # Assume first point is warehouse
+        vehicle.add_stop(warehouse, is_warehouse=True)
+        
+        for point in self.points[1:]:  # Skip the warehouse
             if random.random() < 0.5:
                 delivery = {
-                    "orange": random.randint(0, point.remaining_demand["orange"]),
-                    "uranium": random.randint(0, point.remaining_demand["uranium"]),
-                    "tuna": random.randint(0, point.remaining_demand["tuna"]),
+                    product: random.randint(0, min(point.remaining_demand[product], vehicle.current_load[product]))
+                    for product in point.remaining_demand
                 }
-                vehicle.add_stop(point, delivery_amounts=delivery)
-                route.append({"point": point, "delivery": delivery})
-        return route
+                vehicle.add_stop(point, delivery_amounts=delivery, is_warehouse=False)
+        
+        # Return to warehouse
+        vehicle.add_stop(warehouse, is_warehouse=True)
+        
+        return vehicle.route
