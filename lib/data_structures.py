@@ -8,9 +8,9 @@ class Point:
     Attributes:
     - x (int): x-coordinate of the point.
     - y (int): y-coordinate of the point.
-    - total_demand (int): total demand of the point.
-    - remaining_demand (int): remaining demand of the point.
-    - label (str): label of the point
+    - total_demand (dict): total demand of the point by product.
+    - remaining_demand (dict): remaining demand of the point by product.
+    - label (str): label of the point.
     """
 
     def __init__(self, x: int, y: int, demand: dict = None, label: str = None) -> None:
@@ -60,47 +60,50 @@ class Vehicle:
         self.type = vehicle_type
         self.route = []
         self.assigned_warehouse = None
-        self.current_load = {"orange": 0, "uranium": 0, "tuna": 0}
-        self.capacity = {product: cap for product, cap in zip(self.current_load, [1000, 1500, 2000])}
+        self.capacity = self.VEHICLE_TYPES[vehicle_type]
+        self.current_load = {"orange": self.capacity,
+                            "tuna": self.capacity,
+                            "uranium": self.capacity}
         self.driven_by_cat = False
         self.tuna_eaten_by_cat = 0
+        self.total_distance = 0.0
 
     def reset(self) -> None:
         """Resets load and route of the vehicle."""
-        self.current_load = self.capacity
+        self.current_load = {"orange": self.capacity,
+                            "tuna": self.capacity,
+                            "uranium": self.capacity}
         self.route = []
+        self.total_distance = 0.0
 
     def reload(self) -> dict:
         """Reloads the vehicle to full capacity."""
-        self.current_load = self.capacity.copy()
+        self.current_load = {"orange": self.capacity,
+                           "tuna": self.capacity,
+                           "uranium": self.capacity}
         return self.current_load
 
     def add_stop(self, point: Point, delivery_amounts: dict = None, is_warehouse: bool = False) -> None:
+        """Adds a stop to the vehicle's route."""
         delivery_amounts = delivery_amounts or {k: 0 for k in self.current_load}
-
-        if not is_warehouse:
-            if not hasattr(point, "remaining_demand") or not isinstance(point.remaining_demand, dict):
-                print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} has no proper demand structure.")
-                return
-            for product in self.current_load:
-                if product not in point.remaining_demand:
-                    print(f"[WARNING] Point {getattr(point, 'label', 'UNKNOWN')} missing demand for '{product}'")
-                    return
-
-            products = [product for product, amount in delivery_amounts.items() if amount > 0]
-            if "orange" in products and "uranium" in products:
-                print(
-                    f"[INFO] Vehicle {self.id} skipped illegal combo (orange + uranium) at {getattr(point, 'label', 'UNKNOWN')}")
-                return
 
         stop_info = {
             "point": point,
             "delivery": delivery_amounts.copy(),
             "remaining_load": self.current_load.copy(),
-            "remaining_demand": point.remaining_demand.copy() if not is_warehouse else None,
             "is_warehouse": is_warehouse,
         }
+
+        if not is_warehouse:
+            stop_info["remaining_demand"] = point.remaining_demand.copy()
+
         self.route.append(stop_info)
+
+        if not is_warehouse:
+            for product, amount in delivery_amounts.items():
+                if amount > 0:
+                    self.current_load[product] -= amount
+                    point.deliver(product, amount)
 
         # If cat is driving and this isn't the first stop, have the cat eat tuna
         if self.driven_by_cat and len(self.route) > 1:
@@ -110,23 +113,11 @@ class Vehicle:
             self.current_load["tuna"] -= tuna_to_eat
             self.tuna_eaten_by_cat += tuna_to_eat
 
-        if not is_warehouse:
-            for product, amount in delivery_amounts.items():
-                try:
-                    deliverable = min(amount, point.remaining_demand[product], self.current_load[product])
-                    self.current_load[product] -= deliverable
-                    point.deliver(product, deliverable)
-                except KeyError:
-                    print(
-                        f"[ERROR] Product '{product}' missing in either point or vehicle at {getattr(point, 'label', 'UNKNOWN')}")
-
     @staticmethod
     def create_random_vehicle(vehicle_id: int) -> "Vehicle":
         """Creates a vehicle with a random type."""
         vehicle_type = random.choice(list(Vehicle.VEHICLE_TYPES.keys()))
         return Vehicle(vehicle_id, vehicle_type)
-
-
 class Warehouse:
     """
     Class representing a warehouse.
@@ -151,8 +142,9 @@ class Warehouse:
         """Loads the vehicle to full capacity."""
         vehicle.reload()
 
-    def receive_goods(self, amount: int) -> None:
+    def receive_goods(self, amount: dict) -> None:
         """Receives goods returned to the warehouse (unlimited storage)."""
+        # Currently no internal storage modeled, so just a placeholder
         pass
 
     def dispatch_vehicle(self, vehicle: Vehicle) -> None:
@@ -163,9 +155,10 @@ class Warehouse:
 
     def process_returned_goods(self, vehicle: Vehicle) -> None:
         """Handles goods returned by a vehicle to the warehouse."""
-        returned_goods = vehicle.current_load
+        returned_goods = vehicle.current_load.copy()
         self.receive_goods(returned_goods)
-        vehicle.current_load = 0
+        for product in vehicle.current_load:
+            vehicle.current_load[product] = 0
 
 
 class GingerCat:
@@ -173,6 +166,7 @@ class GingerCat:
     A fat, ginger cat that works at the company.
     Every day, the cat randomly chooses one vehicle to drive and eats tuna at a rate of 1kg/km.
     """
+
     def __init__(self, name="Garfield"):
         self.name = name
         self.selected_vehicle = None
@@ -229,5 +223,6 @@ if __name__ == "__main__":
 
     cat = GingerCat()
     print(cat)
-    selected_vehicle = cat.select_random_vehicle([vehicle for warehouse in warehouses for vehicle in warehouse.vehicles])
+    all_vehicles = [vehicle for warehouse in warehouses for vehicle in warehouse.vehicles]
+    selected_vehicle = cat.select_random_vehicle(all_vehicles)
     print(f"{cat.name} is driving vehicle {selected_vehicle.id} today.")
