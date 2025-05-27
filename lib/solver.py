@@ -1,7 +1,7 @@
 import random
-from typing import List, Dict
-from lib.data_structures import Point, Vehicle
+from typing import List, Dict, Set
 
+from lib.data_structures import Point, Vehicle
 
 class GeneticAlgorithmVRP:
     """
@@ -36,38 +36,30 @@ class GeneticAlgorithmVRP:
         self.tournament_size = tournament_size
         self.warehouse = points[0]
 
-        # Validate vehicle types
         if not all('capacity' in vt and 'count' in vt for vt in self.vehicle_types):
             raise ValueError("Each vehicle type must have 'capacity' and 'count'")
 
     def create_individual(self) -> List[Point]:
-        """Creates a random individual (a permutation of delivery points excluding warehouse)."""
         return random.sample(self.points[1:], len(self.points) - 1)
 
     def initialize_population(self) -> List[List[Point]]:
-        """Initializes population."""
         return [self.create_individual() for _ in range(self.population_size)]
 
     def fitness(self, individual: List[Point]) -> float:
-        """Calculates total distance of delivery plan. Lower is better."""
         try:
             vehicles = self.create_delivery_plan(individual)
-            total_distance = sum(v.total_distance for v in vehicles)
-            return total_distance
-        except Exception:
+            return sum(v.total_distance for v in vehicles)
+        except Exception as e:
+            print(f"Fitness calculation failed: {e}")
             return float('inf')
 
     def tournament_selection(self, population: List[List[Point]]) -> List[Point]:
-        """Selects an individual via tournament selection."""
         candidates = random.sample(population, self.tournament_size)
-        best = min(candidates, key=self.fitness)
-        return best.copy()
+        return min(candidates, key=self.fitness).copy()
 
     def ordered_crossover(self, parent1: List[Point], parent2: List[Point]) -> List[Point]:
-        """Ordered crossover preserving gene order."""
         size = len(parent1)
         start, end = sorted(random.sample(range(size), 2))
-
         child = [None] * size
         child[start:end + 1] = parent1[start:end + 1]
 
@@ -78,11 +70,9 @@ class GeneticAlgorithmVRP:
                     parent2_idx += 1
                 child[i] = parent2[parent2_idx]
                 parent2_idx += 1
-
         return child
 
     def mutate(self, individual: List[Point]) -> List[Point]:
-        """Swap mutation."""
         if random.random() < self.mutation_rate:
             i, j = random.sample(range(len(individual)), 2)
             individual[i], individual[j] = individual[j], individual[i]
@@ -98,84 +88,137 @@ class GeneticAlgorithmVRP:
             for _ in range(vt['count']):
                 v = Vehicle(vehicle_id, vt['type'])
                 v.reset()
-                v.add_stop(self.warehouse, is_warehouse=True)
-                v.reload()
+                v.capacity = vt['capacity']
                 vehicles.append(v)
                 vehicle_id += 1
 
+        for vehicle in vehicles:
+            # Jeśli pojazd nie odwiedził żadnego punktu poza magazynem, dodaj pustą trasę do/z magazynu
+            if not vehicle.route:
+                vehicle.add_stop(self.warehouse, is_warehouse=True)
+                vehicle.reload()
+                vehicle.add_stop(self.warehouse, is_warehouse=True)
+                self._calculate_vehicle_distance(vehicle)
+            elif vehicle.route[-1]["point"] != self.warehouse:
+                vehicle.add_stop(self.warehouse, is_warehouse=True)
+                self._calculate_vehicle_distance(vehicle)
+
+
+        visited_points = set()
+
         for point in individual:
-            while any(amount > 0 for amount in point.remaining_demand.values()):
-                vehicle = self.select_vehicle(vehicles, point)
-                if sum(vehicle.current_load.values()) == 0:
-                    vehicle.add_stop(self.warehouse, is_warehouse=True)
-                    vehicle.reload()
+            self._ensure_point_fully_served(point, vehicles, visited_points)
+            visited_points.add(point)
 
-                delivery = {}
-                remaining_capacity = sum(vehicle.current_load.values())
-                for product, amount in point.remaining_demand.items():
-                    deliver_qty = min(amount, vehicle.current_load[product])
-                    delivery[product] = deliver_qty
-                    remaining_capacity -= deliver_qty
-                    point.remaining_demand[product] -= deliver_qty
+        unvisited = set(self.points[1:]) - visited_points
+        if unvisited:
+            raise RuntimeError(f"Points not visited: {[p.id for p in unvisited]}")
 
-                vehicle.add_stop(point, delivery)
+        for point in self.points[1:]:
+            if any(demand > 0 for demand in point.remaining_demand.values()):
+                raise RuntimeError(f"Point {point.id} has unsatisfied demands: {point.remaining_demand}")
 
-        for v in vehicles:
-            if not v.route or v.route[-1]["point"] != self.warehouse:
-                v.add_stop(self.warehouse, is_warehouse=True)
-            v.total_distance = 0
-            last_point = self.warehouse
-            for stop in v.route:
-                current_point = stop["point"]
-                v.total_distance += last_point.distance_to(current_point)
-                last_point = current_point
+        for vehicle in vehicles:
+            if not vehicle.route or vehicle.route[-1]["point"] != self.warehouse:
+                vehicle.add_stop(self.warehouse, is_warehouse=True)
+            self._calculate_vehicle_distance(vehicle)
 
         return vehicles
 
-    def select_vehicle(self, vehicles: List[Vehicle], point: Point) -> Vehicle:
-        """
-        Selects the best vehicle to deliver to the given point.
+    def _ensure_point_fully_served(self, point: Point, vehicles: List[Vehicle], visited_points: Set[Point]):
+        max_attempts = 50
+        attempts = 0
 
-        The selection tries to maximize efficiency = possible delivery / (travel cost + 1e-6)
-        """
+        while any(demand > 0 for demand in point.remaining_demand.values()) and attempts < max_attempts:
+            attempts += 1
+            best_vehicle = self._find_best_available_vehicle(vehicles, point)
+
+            if best_vehicle is None:
+                self._reload_all_empty_vehicles(vehicles)
+                best_vehicle = self._find_best_available_vehicle(vehicles, point)
+
+            if best_vehicle is None:
+                raise RuntimeError(f"No vehicle can serve point {point.id}")
+
+            delivery = self._calculate_possible_delivery(best_vehicle, point)
+
+            if not delivery or all(qty <= 0 for qty in delivery.values()):
+                if sum(best_vehicle.current_load.values()) == 0:
+                    best_vehicle.add_stop(self.warehouse, is_warehouse=True)
+                    best_vehicle.reload()
+                    continue
+                else:
+                    raise RuntimeError(f"Vehicle {best_vehicle.id} has load but can't deliver to point {point.id}")
+
+            best_vehicle.add_stop(point, delivery)
+            for product, qty in delivery.items():
+                point.remaining_demand[product] -= qty
+                best_vehicle.current_load[product] -= qty
+
+        if attempts >= max_attempts:
+            raise RuntimeError(f"Too many attempts to serve point {point.id}")
+
+    def _find_best_available_vehicle(self, vehicles: List[Vehicle], point: Point) -> Vehicle:
         best_vehicle = None
-        best_efficiency = -1
+        best_score = -1
 
         for vehicle in vehicles:
-            current_pos = (
-                self.warehouse if sum(vehicle.current_load.values()) == 0
-                else vehicle.route[-1]["point"]
-            )
-            cost_to_point = current_pos.distance_to(point)
-            cost_to_warehouse = point.distance_to(self.warehouse)
-            total_cost = cost_to_point + cost_to_warehouse
+            delivery = self._calculate_possible_delivery(vehicle, point)
 
-            possible_delivery = sum(
-                min(vehicle.current_load[prod], point.remaining_demand.get(prod, 0))
-                for prod in vehicle.current_load
-            )
+            if not delivery or all(qty <= 0 for qty in delivery.values()):
+                continue
 
-            efficiency = possible_delivery / (total_cost + 1e-6)
+            current_pos = self._get_vehicle_current_position(vehicle)
+            distance_to_point = current_pos.distance_to(point)
+            total_delivery = sum(delivery.values())
+            score = total_delivery / (distance_to_point + 1.0)
 
-            if possible_delivery > 0 and efficiency > best_efficiency:
-                best_efficiency = efficiency
+            if score > best_score:
+                best_score = score
                 best_vehicle = vehicle
-
-        if best_vehicle is None:
-            best_vehicle = min(
-                vehicles,
-                key=lambda v: v.route[-1]["point"].distance_to(self.warehouse) if v.route else float('inf')
-            )
 
         return best_vehicle
 
+    def _calculate_possible_delivery(self, vehicle: Vehicle, point: Point) -> Dict[str, int]:
+        delivery = {}
+        for product, demand in point.remaining_demand.items():
+            if isinstance(demand, dict):
+                continue
+            available = vehicle.current_load.get(product, 0)
+            if isinstance(available, dict):
+                continue
+            if demand > 0:
+                deliver_qty = min(demand, available)
+                if deliver_qty > 0:
+                    delivery[product] = deliver_qty
+        return delivery
+
+    def _get_vehicle_current_position(self, vehicle: Vehicle) -> Point:
+        if not vehicle.route:
+            return self.warehouse
+        return vehicle.route[-1]["point"]
+
+    def _reload_all_empty_vehicles(self, vehicles: List[Vehicle]):
+        for vehicle in vehicles:
+            if sum(vehicle.current_load.values()) == 0:
+                current_pos = self._get_vehicle_current_position(vehicle)
+                if current_pos != self.warehouse:
+                    vehicle.add_stop(self.warehouse, is_warehouse=True)
+                vehicle.reload()
+
+    def _calculate_vehicle_distance(self, vehicle: Vehicle):
+        vehicle.total_distance = 0
+        last_point = self.warehouse
+        for stop in vehicle.route:
+            current_point = stop["point"]
+            vehicle.total_distance += last_point.distance_to(current_point)
+            last_point = current_point
+
     def run(self) -> List[Vehicle]:
-        """Runs the genetic algorithm to solve the VRP."""
         population = self.initialize_population()
 
         for gen in range(self.generations):
             population = sorted(population, key=self.fitness)
-
             new_population = population[:self.elite_size]
 
             while len(new_population) < self.population_size:
@@ -185,15 +228,17 @@ class GeneticAlgorithmVRP:
                 if random.random() < 0.7:
                     child = self.ordered_crossover(parent1, parent2)
                 else:
-                    child = self.ordered_crossover(parent1, parent2)
+                    child = parent1.copy()
 
                 child = self.mutate(child)
-
                 new_population.append(child)
 
             population = new_population
 
+            if gen % 10 == 0:
+                best_fitness = self.fitness(population[0])
+                print(f"Generation {gen}: Best fitness = {best_fitness}")
+
         best_individual = min(population, key=self.fitness)
         best_vehicles = self.create_delivery_plan(best_individual)
-
         return best_vehicles

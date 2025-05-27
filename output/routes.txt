@@ -1,60 +1,45 @@
 
 Vehicle 1 route:
-Warehouse | Load: 1000/1000
-[Delivery] Point 22 | Total Demand: orange: 131kg, tuna: 11kg, uranium: 9kg, | Delivered: orange: 131kg, tuna: 11kg, uranium: 9kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1000kg, tuna: 1000kg, uranium: 1000kg, 
-[Delivery] Point 10 | Total Demand: orange: 182kg, tuna: 8kg, uranium: 2kg, | Delivered: orange: 182kg, tuna: 8kg, uranium: 2kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 869kg, tuna: 989kg, uranium: 991kg, 
-[Delivery] Point 26 | Total Demand: orange: 54kg, tuna: 7kg, uranium: 65kg, | Delivered: orange: 54kg, tuna: 7kg, uranium: 65kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 687kg, tuna: 981kg, uranium: 989kg, 
-[Delivery] Point 25 | Total Demand: orange: 33kg, tuna: 132kg, uranium: 0kg, | Delivered: orange: 33kg, tuna: 132kg, uranium: 0kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 633kg, tuna: 974kg, uranium: 924kg, 
-[Delivery] Point 1 | Total Demand: orange: 89kg, tuna: 7kg, uranium: 4kg, | Delivered: orange: 89kg, tuna: 7kg, uranium: 4kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 600kg, tuna: 842kg, uranium: 924kg, 
-[Delivery] Point 15 | Total Demand: orange: 172kg, tuna: 23kg, uranium: 4kg, | Delivered: orange: 172kg, tuna: 23kg, uranium: 4kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 511kg, tuna: 835kg, uranium: 920kg, 
-[Delivery] Point 18 | Total Demand: orange: 60kg, tuna: 2kg, uranium: 41kg, | Delivered: orange: 60kg, tuna: 2kg, uranium: 41kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 339kg, tuna: 812kg, uranium: 916kg, 
-[Delivery] Point 24 | Total Demand: orange: 1kg, tuna: 98kg, uranium: 94kg, | Delivered: orange: 1kg, tuna: 98kg, uranium: 94kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 279kg, tuna: 810kg, uranium: 875kg, 
-[Delivery] Point 6 | Total Demand: orange: 59kg, tuna: 44kg, uranium: 67kg, | Delivered: orange: 59kg, tuna: 44kg, uranium: 67kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 278kg, tuna: 712kg, uranium: 781kg, 
-[Delivery] Point 11 | Total Demand: orange: 48kg, tuna: 77kg, uranium: 60kg, | Delivered: orange: 48kg, tuna: 77kg, uranium: 60kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 219kg, tuna: 668kg, uranium: 714kg, 
-Warehouse | Load: 1000/1000
+ This vehicle is driven by the company's fat ginger cat! 
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
+[Delivery] Point 10 | Total Demand: orange: 98kg, tuna: 23kg, uranium: 18kg, | Delivered: orange: 98kg, tuna: 23kg, uranium: 18kg, | Remaining demand: orange: 98kg, tuna: 23kg, uranium: 18kg, | Remaining load: orange: 1000kg, tuna: 1000kg, uranium: 1000kg, 
+[Delivery] Point 9 | Total Demand: orange: 60kg, tuna: 44kg, uranium: 18kg, | Delivered: orange: 60kg, tuna: 44kg, uranium: 18kg, | Remaining demand: orange: 60kg, tuna: 44kg, uranium: 18kg, | Remaining load: orange: 804kg, tuna: 954kg, uranium: 964kg, 
+[Delivery] Point 11 | Total Demand: orange: 88kg, tuna: 37kg, uranium: 11kg, | Delivered: orange: 88kg, tuna: 37kg, uranium: 11kg, | Remaining demand: orange: 88kg, tuna: 37kg, uranium: 11kg, | Remaining load: orange: 684kg, tuna: 866kg, uranium: 928kg, 
+[Delivery] Point 8 | Total Demand: orange: 16kg, tuna: 14kg, uranium: 4kg, | Delivered: orange: 16kg, tuna: 14kg, uranium: 4kg, | Remaining demand: orange: 16kg, tuna: 14kg, uranium: 4kg, | Remaining load: orange: 508kg, tuna: 792kg, uranium: 906kg, 
+[Delivery] Point 14 | Total Demand: orange: 23kg, tuna: 23kg, uranium: 1kg, | Delivered: orange: 23kg, tuna: 23kg, uranium: 1kg, | Remaining demand: orange: 23kg, tuna: 23kg, uranium: 1kg, | Remaining load: orange: 476kg, tuna: 764kg, uranium: 898kg, 
+[Delivery] Point 5 | Total Demand: orange: 48kg, tuna: 19kg, uranium: 8kg, | Delivered: orange: 48kg, tuna: 19kg, uranium: 8kg, | Remaining demand: orange: 48kg, tuna: 19kg, uranium: 8kg, | Remaining load: orange: 430kg, tuna: 718kg, uranium: 896kg, 
+[Delivery] Point 3 | Total Demand: orange: 32kg, tuna: 13kg, uranium: 16kg, | Delivered: orange: 32kg, tuna: 13kg, uranium: 16kg, | Remaining demand: orange: 32kg, tuna: 13kg, uranium: 16kg, | Remaining load: orange: 334kg, tuna: 680kg, uranium: 880kg, 
+[Delivery] Point 7 | Total Demand: orange: 64kg, tuna: 17kg, uranium: 3kg, | Delivered: orange: 64kg, tuna: 17kg, uranium: 3kg, | Remaining demand: orange: 64kg, tuna: 17kg, uranium: 3kg, | Remaining load: orange: 270kg, tuna: 654kg, uranium: 848kg, 
+[Delivery] Point 13 | Total Demand: orange: 37kg, tuna: 39kg, uranium: 4kg, | Delivered: orange: 37kg, tuna: 39kg, uranium: 4kg, | Remaining demand: orange: 37kg, tuna: 39kg, uranium: 4kg, | Remaining load: orange: 142kg, tuna: 620kg, uranium: 842kg, 
+[Delivery] Point 12 | Total Demand: orange: 43kg, tuna: 16kg, uranium: 4kg, | Delivered: orange: 43kg, tuna: 16kg, uranium: 4kg, | Remaining demand: orange: 43kg, tuna: 16kg, uranium: 4kg, | Remaining load: orange: 68kg, tuna: 542kg, uranium: 834kg, 
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
 
-Total distance: 268.91 km
+Total distance: 299.17 km
+Tuna eaten by the cat: 24.50 kg
 
 Vehicle 2 route:
-Warehouse | Load: 1000/1000
-[Delivery] Point 4 | Total Demand: orange: 55kg, tuna: 108kg, uranium: 24kg, | Delivered: orange: 55kg, tuna: 108kg, uranium: 24kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1000kg, tuna: 1000kg, uranium: 1000kg, 
-[Delivery] Point 8 | Total Demand: orange: 164kg, tuna: 1kg, uranium: 6kg, | Delivered: orange: 164kg, tuna: 1kg, uranium: 6kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 945kg, tuna: 892kg, uranium: 976kg, 
-Warehouse | Load: 1000/1000
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
+[Delivery] Point 1 | Total Demand: orange: 90kg, tuna: 35kg, uranium: 14kg, | Delivered: orange: 90kg, tuna: 35kg, uranium: 14kg, | Remaining demand: orange: 90kg, tuna: 35kg, uranium: 14kg, | Remaining load: orange: 1000kg, tuna: 1000kg, uranium: 1000kg, 
+[Delivery] Point 2 | Total Demand: orange: 54kg, tuna: 48kg, uranium: 7kg, | Delivered: orange: 54kg, tuna: 48kg, uranium: 7kg, | Remaining demand: orange: 54kg, tuna: 48kg, uranium: 7kg, | Remaining load: orange: 820kg, tuna: 930kg, uranium: 972kg, 
+[Delivery] Point 6 | Total Demand: orange: 67kg, tuna: 33kg, uranium: 11kg, | Delivered: orange: 67kg, tuna: 33kg, uranium: 11kg, | Remaining demand: orange: 67kg, tuna: 33kg, uranium: 11kg, | Remaining load: orange: 712kg, tuna: 834kg, uranium: 958kg, 
+[Delivery] Point 4 | Total Demand: orange: 52kg, tuna: 7kg, uranium: 1kg, | Delivered: orange: 52kg, tuna: 7kg, uranium: 1kg, | Remaining demand: orange: 52kg, tuna: 7kg, uranium: 1kg, | Remaining load: orange: 578kg, tuna: 768kg, uranium: 936kg, 
+Warehouse | Load: {'orange': 500, 'tuna': 300, 'uranium': 100}/{'orange': 500, 'tuna': 300, 'uranium': 100}
 
-Total distance: 58.15 km
+Total distance: 119.21 km
 
 Vehicle 3 route:
-Warehouse | Load: 2000/2000
-[Delivery] Point 14 | Total Demand: orange: 44kg, tuna: 93kg, uranium: 48kg, | Delivered: orange: 44kg, tuna: 93kg, uranium: 48kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 2000kg, tuna: 2000kg, uranium: 2000kg, 
-[Delivery] Point 23 | Total Demand: orange: 68kg, tuna: 84kg, uranium: 6kg, | Delivered: orange: 68kg, tuna: 84kg, uranium: 6kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1956kg, tuna: 1907kg, uranium: 1952kg, 
-[Delivery] Point 17 | Total Demand: orange: 100kg, tuna: 47kg, uranium: 19kg, | Delivered: orange: 100kg, tuna: 47kg, uranium: 19kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1888kg, tuna: 1823kg, uranium: 1946kg, 
-[Delivery] Point 5 | Total Demand: orange: 56kg, tuna: 97kg, uranium: 14kg, | Delivered: orange: 56kg, tuna: 97kg, uranium: 14kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1788kg, tuna: 1776kg, uranium: 1927kg, 
-[Delivery] Point 13 | Total Demand: orange: 62kg, tuna: 95kg, uranium: 4kg, | Delivered: orange: 62kg, tuna: 95kg, uranium: 4kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1732kg, tuna: 1679kg, uranium: 1913kg, 
-[Delivery] Point 16 | Total Demand: orange: 130kg, tuna: 3kg, uranium: 23kg, | Delivered: orange: 130kg, tuna: 3kg, uranium: 23kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1670kg, tuna: 1584kg, uranium: 1909kg, 
-[Delivery] Point 21 | Total Demand: orange: 51kg, tuna: 138kg, uranium: 9kg, | Delivered: orange: 51kg, tuna: 138kg, uranium: 9kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1540kg, tuna: 1581kg, uranium: 1886kg, 
-[Delivery] Point 3 | Total Demand: orange: 83kg, tuna: 17kg, uranium: 3kg, | Delivered: orange: 83kg, tuna: 17kg, uranium: 3kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1489kg, tuna: 1443kg, uranium: 1877kg, 
-Warehouse | Load: 2000/2000
+Warehouse | Load: {'orange': 800, 'tuna': 500, 'uranium': 200}/{'orange': 800, 'tuna': 500, 'uranium': 200}
+Warehouse | Load: {'orange': 800, 'tuna': 500, 'uranium': 200}/{'orange': 800, 'tuna': 500, 'uranium': 200}
 
-Total distance: 280.70 km
+Total distance: 0.00 km
 
 Vehicle 4 route:
- This vehicle is driven by the company's fat ginger cat! 
-Warehouse | Load: 2000/2000
-[Delivery] Point 9 | Total Demand: orange: 75kg, tuna: 15kg, uranium: 102kg, | Delivered: orange: 75kg, tuna: 15kg, uranium: 102kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 2000kg, tuna: 2000kg, uranium: 2000kg, 
-[Delivery] Point 7 | Total Demand: orange: 117kg, tuna: 4kg, uranium: 7kg, | Delivered: orange: 117kg, tuna: 4kg, uranium: 7kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1925kg, tuna: 1985kg, uranium: 1898kg, 
-[Delivery] Point 2 | Total Demand: orange: 26kg, tuna: 40kg, uranium: 63kg, | Delivered: orange: 26kg, tuna: 40kg, uranium: 63kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1808kg, tuna: 1981kg, uranium: 1891kg, 
-[Delivery] Point 19 | Total Demand: orange: 151kg, tuna: 18kg, uranium: 9kg, | Delivered: orange: 151kg, tuna: 18kg, uranium: 9kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1782kg, tuna: 1941kg, uranium: 1828kg, 
-[Delivery] Point 20 | Total Demand: orange: 21kg, tuna: 64kg, uranium: 36kg, | Delivered: orange: 21kg, tuna: 64kg, uranium: 36kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1631kg, tuna: 1923kg, uranium: 1819kg, 
-[Delivery] Point 12 | Total Demand: orange: 129kg, tuna: 25kg, uranium: 9kg, | Delivered: orange: 129kg, tuna: 25kg, uranium: 9kg, | Remaining demand: orange: 0kg, tuna: 0kg, uranium: 0kg, | Remaining load: orange: 1610kg, tuna: 1859kg, uranium: 1783kg, 
-Warehouse | Load: 2000/2000
-
-Total distance: 80.17 km
-Tuna eaten by the cat: 0.00 kg
-
-Vehicle 5 route:
-Warehouse | Load: 2000/2000
+Warehouse | Load: {'orange': 800, 'tuna': 500, 'uranium': 200}/{'orange': 800, 'tuna': 500, 'uranium': 200}
+Warehouse | Load: {'orange': 800, 'tuna': 500, 'uranium': 200}/{'orange': 800, 'tuna': 500, 'uranium': 200}
 
 Total distance: 0.00 km
 
 
-GRAND TOTAL DISTANCE: 687.93 km
+GRAND TOTAL DISTANCE: 418.38 km

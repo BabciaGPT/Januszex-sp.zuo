@@ -34,8 +34,9 @@ class Point:
 
     def deliver(self, product: str, amount: int) -> int:
         """Delivers a certain amount of goods to the point."""
-        self.remaining_demand[product] = max(0, self.remaining_demand[product] - amount)
-        return self.remaining_demand[product]
+        if product in self.remaining_demand:
+            self.remaining_demand[product] = max(0, self.remaining_demand[product] - amount)
+        return self.remaining_demand.get(product, 0)
 
     def distance_to(self, other: "Point") -> float:
         """Calculates the Euclidean distance to another point."""
@@ -61,31 +62,38 @@ class Vehicle:
         self.route = []
         self.assigned_warehouse = None
         self.capacity = self.VEHICLE_TYPES[vehicle_type]
-        self.current_load = {"orange": self.capacity,
-                            "tuna": self.capacity,
-                            "uranium": self.capacity}
+
+        # Capacity per product
+        self.capacity_dict = {"orange": self.capacity,
+                              "tuna": self.capacity,
+                              "uranium": self.capacity}
+
+        self.current_load = self.capacity_dict.copy()
         self.driven_by_cat = False
         self.tuna_eaten_by_cat = 0
         self.total_distance = 0.0
 
     def reset(self) -> None:
         """Resets load and route of the vehicle."""
-        self.current_load = {"orange": self.capacity,
-                            "tuna": self.capacity,
-                            "uranium": self.capacity}
+        self.current_load = self.capacity_dict.copy()
         self.route = []
         self.total_distance = 0.0
 
     def reload(self) -> dict:
-        """Reloads the vehicle to full capacity."""
-        self.current_load = {"orange": self.capacity,
-                           "tuna": self.capacity,
-                           "uranium": self.capacity}
+        """Reloads the vehicle to full capacity using default capacity."""
+        self.current_load = self.capacity_dict.copy()
+        return self.current_load
+
+    def reload_with_capacity(self, capacity_dict: dict) -> dict:
+        """Reloads the vehicle to full capacity using specified capacity dictionary."""
+        self.current_load = capacity_dict.copy()
+        self.capacity_dict = capacity_dict.copy()
         return self.current_load
 
     def add_stop(self, point: Point, delivery_amounts: dict = None, is_warehouse: bool = False) -> None:
         """Adds a stop to the vehicle's route."""
-        delivery_amounts = delivery_amounts or {k: 0 for k in self.current_load}
+        if delivery_amounts is None:
+            delivery_amounts = {k: 0 for k in self.current_load}
 
         stop_info = {
             "point": point,
@@ -105,7 +113,7 @@ class Vehicle:
                     self.current_load[product] -= amount
                     point.deliver(product, amount)
 
-        # If cat is driving and this isn't the first stop, have the cat eat tuna
+        # If cat is driving and this isn't the first stop, cat eats tuna
         if self.driven_by_cat and len(self.route) > 1:
             prev_point = self.route[-2]["point"]
             distance = prev_point.distance_to(point)
@@ -118,6 +126,8 @@ class Vehicle:
         """Creates a vehicle with a random type."""
         vehicle_type = random.choice(list(Vehicle.VEHICLE_TYPES.keys()))
         return Vehicle(vehicle_id, vehicle_type)
+
+
 class Warehouse:
     """
     Class representing a warehouse.
@@ -141,11 +151,6 @@ class Warehouse:
     def load_vehicle(self, vehicle: Vehicle) -> None:
         """Loads the vehicle to full capacity."""
         vehicle.reload()
-
-    def receive_goods(self, amount: dict) -> None:
-        """Receives goods returned to the warehouse (unlimited storage)."""
-        # Currently no internal storage modeled, so just a placeholder
-        pass
 
     def dispatch_vehicle(self, vehicle: Vehicle) -> None:
         """Resets the vehicle and sends it out on a new delivery route."""
@@ -174,7 +179,6 @@ class GingerCat:
 
     def select_random_vehicle(self, vehicles):
         """Randomly selects a vehicle to drive for the day."""
-        # Reset previous vehicle if any
         if self.selected_vehicle:
             self.selected_vehicle.driven_by_cat = False
             self.total_tuna_eaten += self.selected_vehicle.tuna_eaten_by_cat
@@ -214,12 +218,13 @@ def generate_warehouses_and_vehicles(num_warehouses: int, num_vehicles_per_wareh
 
 
 if __name__ == "__main__":
-    warehouses = generate_warehouses_and_vehicles(5, 3)
+    warehouses = generate_warehouses_and_vehicles(5, 5)
 
     for warehouse in warehouses:
         print(f"Warehouse {warehouse.id} located at ({warehouse.location.x}, {warehouse.location.y})")
         for vehicle in warehouse.vehicles:
-            print(f"  Vehicle {vehicle.id} (Type: {vehicle.type}) is assigned to this warehouse.")
+            assigned = vehicle.assigned_warehouse.id if vehicle.assigned_warehouse else None
+            print(f"  Vehicle {vehicle.id} (Type: {vehicle.type}) assigned to Warehouse {assigned}")
 
     cat = GingerCat()
     print(cat)
